@@ -16,5 +16,8 @@ namespace Repository
         {
 
         }
+        public IEnumerable<Library> GetAllLibraries(bool trackChanges) => FindAll(trackChanges)
+            .OrderBy(c => c.Name)
+            .ToList();
     }
 }
