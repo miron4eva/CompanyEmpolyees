@@ -10,5 +10,8 @@ namespace Contracts
     public interface ILibraryRepository
     {
         IEnumerable<Library> GetAllLibraries(bool trackChanges);
+
+        Library GetLibrary(Guid libraryId, bool trackChanges);
+
     }
 }

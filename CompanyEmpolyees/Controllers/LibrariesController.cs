@@ -26,5 +26,20 @@ namespace CompanyEmployees.Controllers
             var librariesDto = _mapper.Map<IEnumerable<LibraryDto>>(libraries);
             return Ok(librariesDto);
         }
+        [HttpGet("{id}")]
+        public IActionResult GetLibrary(Guid id)
+        {
+            var linrary = _repository.Library.GetLibrary(id, trackChanges: false);
+            if (linrary == null)
+            {
+                _logger.LogInfo($"Library with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            else
+            {
+                var libraryDto = _mapper.Map<LibraryDto>(linrary);
+                return Ok(libraryDto);
+            }
+        }
     }
 }
