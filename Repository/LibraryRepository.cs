@@ -20,5 +20,8 @@ namespace Repository
             .OrderBy(c => c.Name)
             .ToList();
         public Library GetLibrary(Guid libraryId, bool trackChanges) => FindByCondition(c => c.Id.Equals(libraryId), trackChanges).SingleOrDefault();
+        public void CreateLibrary(Library library) => Create(library);
+        public IEnumerable<Library> GetByIds(IEnumerable<Guid> ids, bool trackChanges) => FindByCondition(x => ids.Contains(x.Id), trackChanges)
+            .ToList();
     }
 }

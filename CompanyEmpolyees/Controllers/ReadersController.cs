@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +34,7 @@ namespace CompanyEmpolyees.Controllers
             var readersDto = _mapper.Map<IEnumerable<ReaderDto>>(readersFromDb);
             return Ok(readersDto);
         }
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetReaderForLibrary")]
         public IActionResult GetReaderForLibrary(Guid libraryId, Guid id)
         {
             var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
@@ -50,6 +51,30 @@ namespace CompanyEmpolyees.Controllers
             }
             var reader = _mapper.Map<ReaderDto>(readerDb);
             return Ok(reader);
+        }
+        [HttpPost]
+        public IActionResult CreateReaderForLibrary(Guid libraryId, [FromBody] ReaderForCreationDto reader)
+        {
+            if (reader == null)
+            {
+                _logger.LogError("ReaderForCreationDto object sent from client is null.");
+                return BadRequest("ReaderForCreationDto object is null");
+            }
+            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            if (library == null)
+            {
+                _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
+                return NotFound();
+            }
+            var readerEntity = _mapper.Map<Reader>(reader);
+            _repository.Reader.CreateReaderForLibrary(libraryId, readerEntity);
+            _repository.Save();
+            var readerToReturn = _mapper.Map<ReaderDto>(readerEntity);
+            return CreatedAtRoute("GetEmployeeForCompany", new
+            {
+                libraryId,
+                id = readerToReturn.Id
+            }, readerToReturn);
         }
     }
 }

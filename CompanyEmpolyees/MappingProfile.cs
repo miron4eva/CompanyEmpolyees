@@ -14,6 +14,10 @@ namespace CompanyEmpolyees
             CreateMap<Library, LibraryDto>();
             CreateMap<Employee, EmployeeDto>();
             CreateMap<Reader, ReaderDto>();
+            CreateMap<CompanyForCreationDto, Company>();
+            CreateMap<LibraryForCreationDto, Library>();
+            CreateMap<EmployeeForCreationDto, Employee>();
+            CreateMap<ReaderForCreationDto, Reader>();
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Contracts
     {
         IEnumerable<Reader> GetReaders(Guid libraryId, bool trackChanges);
         Reader GetReader(Guid libraryId, Guid id, bool trackChanges);
+        void CreateReaderForLibrary(Guid libraryId, Reader reader);
 
     }
 }

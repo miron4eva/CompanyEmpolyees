@@ -16,5 +16,10 @@ namespace Repository
             .OrderBy(e => e.Name);
         public Reader GetReader(Guid libraryId, Guid id, bool trackChanges) => FindByCondition(e => e.LibraryId.Equals(libraryId) && e.Id.Equals(id), trackChanges)
             .SingleOrDefault();
+        public void CreateReaderForLibrary(Guid libraryId, Reader reader)
+        {
+            reader.LibraryId = libraryId;
+            Create(reader);
+        }
     }
 }
