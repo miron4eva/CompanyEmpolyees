@@ -76,5 +76,48 @@ namespace CompanyEmpolyees.Controllers
                 id = readerToReturn.Id
             }, readerToReturn);
         }
+        [HttpDelete("{id}")]
+        public IActionResult DeleteReaderForLibrary(Guid libraryId, Guid id)
+        {
+            var library = _repository.Company.GetCompany(libraryId, trackChanges: false);
+            if (library == null)
+            {
+                _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
+                return NotFound();
+            }
+            var readerForLibrary = _repository.Reader.GetReader(libraryId, id, trackChanges: false);
+            if (readerForLibrary == null)
+            {
+                _logger.LogInfo($"Reader with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _repository.Reader.DeleteReader(readerForLibrary);
+            _repository.Save();
+            return NoContent();
+        }
+        [HttpPut("{id}")]
+        public IActionResult UpdateReaderForLibrary(Guid libraryId, Guid id, [FromBody] ReaderForUpdateDto reader)
+        {
+            if (reader == null)
+            {
+                _logger.LogError("ReaderForUpdateDto object sent from client is null.");
+                return BadRequest("ReaderForUpdateDto object is null");
+            }
+            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            if (library == null)
+            {
+                _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
+                return NotFound();
+            }
+            var readerEntity = _repository.Reader.GetReader(libraryId, id, trackChanges: true);
+            if (readerEntity == null)
+            {
+                _logger.LogInfo($"Reader with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _mapper.Map(reader, readerEntity);
+            _repository.Save();
+            return NoContent();
+        }
     }
 }

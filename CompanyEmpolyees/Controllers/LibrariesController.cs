@@ -4,6 +4,7 @@ using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyEmployees.Controllers
@@ -92,6 +93,63 @@ namespace CompanyEmployees.Controllers
             var libraryCollectionToReturn = _mapper.Map<IEnumerable<LibraryDto>>(libraryEntities);
             var ids = string.Join(",", libraryCollectionToReturn.Select(c => c.Id));
             return CreatedAtRoute("LibraryCollection", new { ids }, libraryCollectionToReturn);
+        }
+        [HttpDelete("{id}")]
+        public IActionResult DeleteLibrary(Guid id)
+        {
+            var library = _repository.Library.GetLibrary(id, trackChanges: false);
+            if (library == null)
+            {
+                _logger.LogInfo($"Library with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _repository.Library.DeleteLibrary(library);
+            _repository.Save();
+            return NoContent();
+        }
+        [HttpPut("{id}")]
+        public IActionResult UpdateLibrary(Guid id, [FromBody] LibraryForUpdateDto library)
+        {
+            if (library == null)
+            {
+                _logger.LogError("LibraryForUpdateDto object sent from client is null.");
+                return BadRequest("LibraryForUpdateDto object is null");
+            }
+            var libraryEntity = _repository.Library.GetLibrary(id, trackChanges: true);
+            if (libraryEntity == null)
+            {
+                _logger.LogInfo($"Library with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _mapper.Map(library, libraryEntity);
+            _repository.Save();
+            return NoContent();
+        }
+        [HttpPatch("{id}")]
+        public IActionResult PartiallyUpdateEmployeeForCompany(Guid libraryId, Guid id, [FromBody] JsonPatchDocument<ReaderForUpdateDto> patchDoc)
+        {
+            if (patchDoc == null)
+            {
+                _logger.LogError("patchDoc object sent from client is null.");
+                return BadRequest("patchDoc object is null");
+            }
+            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            if (library == null)
+            {
+                _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
+                return NotFound();
+            }
+            var readerEntity = _repository.Reader.GetReader(libraryId, id, trackChanges: true);
+            if (readerEntity == null)
+            {
+                _logger.LogInfo($"Reader with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            var readerToPatch = _mapper.Map<ReaderForUpdateDto>(readerEntity);
+            patchDoc.ApplyTo(readerToPatch);
+            _mapper.Map(readerToPatch, readerEntity);
+            _repository.Save();
+            return NoContent();
         }
     }
 }

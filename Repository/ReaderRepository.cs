@@ -21,5 +21,9 @@ namespace Repository
             reader.LibraryId = libraryId;
             Create(reader);
         }
+        public void DeleteReader(Reader reader)
+        {
+            Delete(reader);
+        }
     }
 }

@@ -13,6 +13,6 @@ namespace Contracts
         Library GetLibrary(Guid libraryId, bool trackChanges);
         void CreateLibrary(Library library);
         IEnumerable<Library> GetByIds(IEnumerable<Guid> ids, bool trackChanges);
-
+        void DeleteLibrary(Library library);
     }
 }

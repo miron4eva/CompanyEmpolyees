@@ -23,5 +23,9 @@ namespace Repository
         public void CreateLibrary(Library library) => Create(library);
         public IEnumerable<Library> GetByIds(IEnumerable<Guid> ids, bool trackChanges) => FindByCondition(x => ids.Contains(x.Id), trackChanges)
             .ToList();
+        public void DeleteLibrary(Library library)
+        {
+            Delete(library);
+        }
     }
 }

@@ -18,6 +18,10 @@ namespace CompanyEmpolyees
             CreateMap<LibraryForCreationDto, Library>();
             CreateMap<EmployeeForCreationDto, Employee>();
             CreateMap<ReaderForCreationDto, Reader>();
+            CreateMap<EmployeeForUpdateDto, Employee>().ReverseMap();
+            CreateMap<ReaderForUpdateDto, Reader>().ReverseMap();
+            CreateMap<CompanyForUpdateDto, Company>();
+            CreateMap<LibraryForUpdateDto, Library>();
         }
     }
 }
