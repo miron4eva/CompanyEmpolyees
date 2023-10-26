@@ -23,16 +23,16 @@ namespace CompanyEmployees.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public IActionResult GetLibraries()
+        public async Task<IActionResult> GetLibrariesAsync()
         {
-            var libraries = _repository.Library.GetAllLibraries(trackChanges: false);
+            var libraries = await _repository.Library.GetAllLibrariesAsync(trackChanges: false);
             var librariesDto = _mapper.Map<IEnumerable<LibraryDto>>(libraries);
             return Ok(librariesDto);
         }
         [HttpGet("{id}", Name = "LibraryById")]
-        public IActionResult GetLibrary(Guid id)
+        public async Task<IActionResult> GetLibraryAsync(Guid id)
         {
-            var linrary = _repository.Library.GetLibrary(id, trackChanges: false);
+            var linrary = await _repository.Library.GetLibraryAsync(id, trackChanges: false);
             if (linrary == null)
             {
                 _logger.LogInfo($"Library with id: {id} doesn't exist in the database.");
@@ -45,7 +45,7 @@ namespace CompanyEmployees.Controllers
             }
         }
         [HttpPost]
-        public IActionResult CreateLibrary([FromBody] LibraryForCreationDto library)
+        public async Task<IActionResult> CreateLibrary([FromBody] LibraryForCreationDto library)
         {
             if (library == null)
             {
@@ -54,19 +54,19 @@ namespace CompanyEmployees.Controllers
             }
             var libraryEntity = _mapper.Map<Library>(library);
             _repository.Library.CreateLibrary(libraryEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             var libraryToReturn = _mapper.Map<CompanyDto>(libraryEntity);
             return CreatedAtRoute("LibraryById", new { id = libraryToReturn.Id },libraryToReturn);
         }
         [HttpGet("collection/({ids})", Name = "LibraryCollection")]
-        public IActionResult GetLibraryCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetLibraryCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
             if (ids == null)
             {
                 _logger.LogError("Parameter ids is null");
                 return BadRequest("Parameter ids is null");
             }
-            var libraryEntities = _repository.Library.GetByIds(ids, trackChanges: false);
+            var libraryEntities = await _repository.Library.GetByIdsAsync(ids, trackChanges: false);
             if (ids.Count() != libraryEntities.Count())
             {
                 _logger.LogError("Some ids are not valid in a collection");
@@ -77,7 +77,7 @@ namespace CompanyEmployees.Controllers
 
         }
         [HttpPost("collection")]
-        public IActionResult CreateLibraryCollection([FromBody] IEnumerable<LibraryForCreationDto> libraryCollection)
+        public async Task<IActionResult> CreateLibraryCollection([FromBody] IEnumerable<LibraryForCreationDto> libraryCollection)
         {
             if (libraryCollection == null)
             {
@@ -89,66 +89,72 @@ namespace CompanyEmployees.Controllers
             {
                 _repository.Library.CreateLibrary(library);
             }
-            _repository.Save();
+            await _repository.SaveAsync();
             var libraryCollectionToReturn = _mapper.Map<IEnumerable<LibraryDto>>(libraryEntities);
             var ids = string.Join(",", libraryCollectionToReturn.Select(c => c.Id));
             return CreatedAtRoute("LibraryCollection", new { ids }, libraryCollectionToReturn);
         }
         [HttpDelete("{id}")]
-        public IActionResult DeleteLibrary(Guid id)
+        public async Task<IActionResult> DeleteLibrary(Guid id)
         {
-            var library = _repository.Library.GetLibrary(id, trackChanges: false);
+            var library = await _repository.Library.GetLibraryAsync(id, trackChanges: false);
             if (library == null)
             {
                 _logger.LogInfo($"Library with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _repository.Library.DeleteLibrary(library);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateLibrary(Guid id, [FromBody] LibraryForUpdateDto library)
+        public async Task<IActionResult> UpdateLibrary(Guid id, [FromBody] LibraryForUpdateDto library)
         {
             if (library == null)
             {
                 _logger.LogError("LibraryForUpdateDto object sent from client is null.");
                 return BadRequest("LibraryForUpdateDto object is null");
             }
-            var libraryEntity = _repository.Library.GetLibrary(id, trackChanges: true);
+            var libraryEntity = await _repository.Library.GetLibraryAsync(id, trackChanges: true);
             if (libraryEntity == null)
             {
                 _logger.LogInfo($"Library with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _mapper.Map(library, libraryEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
         [HttpPatch("{id}")]
-        public IActionResult PartiallyUpdateEmployeeForCompany(Guid libraryId, Guid id, [FromBody] JsonPatchDocument<ReaderForUpdateDto> patchDoc)
+        public async Task<IActionResult> PartiallyUpdateEmployeeForCompany(Guid libraryId, Guid id, [FromBody] JsonPatchDocument<ReaderForUpdateDto> patchDoc)
         {
             if (patchDoc == null)
             {
                 _logger.LogError("patchDoc object sent from client is null.");
                 return BadRequest("patchDoc object is null");
             }
-            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            var library = await _repository.Library.GetLibraryAsync(libraryId, trackChanges: false);
             if (library == null)
             {
                 _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
                 return NotFound();
             }
-            var readerEntity = _repository.Reader.GetReader(libraryId, id, trackChanges: true);
+            var readerEntity = _repository.Reader.GetReaderAsync(libraryId, id, trackChanges: true);
             if (readerEntity == null)
             {
                 _logger.LogInfo($"Reader with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             var readerToPatch = _mapper.Map<ReaderForUpdateDto>(readerEntity);
-            patchDoc.ApplyTo(readerToPatch);
+            patchDoc.ApplyTo(readerToPatch, ModelState);
+            TryValidateModel(readerToPatch);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the patch document");
+                return UnprocessableEntity(ModelState);
+            }
             _mapper.Map(readerToPatch, readerEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
     }

@@ -9,10 +9,10 @@ namespace Contracts
 {
     public interface ILibraryRepository
     {
-        IEnumerable<Library> GetAllLibraries(bool trackChanges);
-        Library GetLibrary(Guid libraryId, bool trackChanges);
+        Task<IEnumerable<Library>> GetAllLibrariesAsync(bool trackChanges);
+        Task<Library> GetLibraryAsync(Guid libraryId, bool trackChanges);
         void CreateLibrary(Library library);
-        IEnumerable<Library> GetByIds(IEnumerable<Guid> ids, bool trackChanges);
+        Task<IEnumerable<Library>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
         void DeleteLibrary(Library library);
     }
 }

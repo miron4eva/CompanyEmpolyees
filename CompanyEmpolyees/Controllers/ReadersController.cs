@@ -22,28 +22,28 @@ namespace CompanyEmpolyees.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public IActionResult GetReadersForLibrary(Guid libraryId)
+        public async Task<IActionResult> GetReadersForLibrary(Guid libraryId)
         {
-            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            var library = await _repository.Library.GetLibraryAsync(libraryId, trackChanges: false);
             if (library == null)
             {
                 _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
                 return NotFound();
             }
-            var readersFromDb = _repository.Reader.GetReaders(libraryId, trackChanges: false);
+            var readersFromDb = await _repository.Reader.GetReadersAsync(libraryId, trackChanges: false);
             var readersDto = _mapper.Map<IEnumerable<ReaderDto>>(readersFromDb);
             return Ok(readersDto);
         }
         [HttpGet("{id}", Name = "GetReaderForLibrary")]
-        public IActionResult GetReaderForLibrary(Guid libraryId, Guid id)
+        public async Task<IActionResult> GetReaderForLibrary(Guid libraryId, Guid id)
         {
-            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            var library = await _repository.Library.GetLibraryAsync(libraryId, trackChanges: false);
             if (library == null)
             {
                 _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
                 return NotFound();
             }
-            var readerDb = _repository.Reader.GetReader(libraryId, id, trackChanges: false);
+            var readerDb = await _repository.Reader.GetReaderAsync(libraryId, id, trackChanges: false);
             if (readerDb == null)
             {
                 _logger.LogInfo($"Reader with id: {id} doesn't exist in the database.");
@@ -53,14 +53,19 @@ namespace CompanyEmpolyees.Controllers
             return Ok(reader);
         }
         [HttpPost]
-        public IActionResult CreateReaderForLibrary(Guid libraryId, [FromBody] ReaderForCreationDto reader)
+        public async Task<IActionResult> CreateReaderForLibrary(Guid libraryId, [FromBody] ReaderForCreationDto reader)
         {
             if (reader == null)
             {
                 _logger.LogError("ReaderForCreationDto object sent from client is null.");
                 return BadRequest("ReaderForCreationDto object is null");
             }
-            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the EmployeeForCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+            var library = await _repository.Library.GetLibraryAsync(libraryId, trackChanges: false);
             if (library == null)
             {
                 _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
@@ -68,7 +73,7 @@ namespace CompanyEmpolyees.Controllers
             }
             var readerEntity = _mapper.Map<Reader>(reader);
             _repository.Reader.CreateReaderForLibrary(libraryId, readerEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             var readerToReturn = _mapper.Map<ReaderDto>(readerEntity);
             return CreatedAtRoute("GetEmployeeForCompany", new
             {
@@ -77,46 +82,51 @@ namespace CompanyEmpolyees.Controllers
             }, readerToReturn);
         }
         [HttpDelete("{id}")]
-        public IActionResult DeleteReaderForLibrary(Guid libraryId, Guid id)
+        public async Task<IActionResult> DeleteReaderForLibrary(Guid libraryId, Guid id)
         {
-            var library = _repository.Company.GetCompany(libraryId, trackChanges: false);
+            var library = await _repository.Company.GetCompanyAsync(libraryId, trackChanges: false);
             if (library == null)
             {
                 _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
                 return NotFound();
             }
-            var readerForLibrary = _repository.Reader.GetReader(libraryId, id, trackChanges: false);
+            var readerForLibrary = await _repository.Reader.GetReaderAsync(libraryId, id, trackChanges: false);
             if (readerForLibrary == null)
             {
                 _logger.LogInfo($"Reader with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _repository.Reader.DeleteReader(readerForLibrary);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateReaderForLibrary(Guid libraryId, Guid id, [FromBody] ReaderForUpdateDto reader)
+        public async Task<IActionResult> UpdateReaderForLibrary(Guid libraryId, Guid id, [FromBody] ReaderForUpdateDto reader)
         {
             if (reader == null)
             {
                 _logger.LogError("ReaderForUpdateDto object sent from client is null.");
                 return BadRequest("ReaderForUpdateDto object is null");
             }
-            var library = _repository.Library.GetLibrary(libraryId, trackChanges: false);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the EmployeeForUpdateDto object");
+                return UnprocessableEntity(ModelState);
+            }
+            var library = await _repository.Library.GetLibraryAsync(libraryId, trackChanges: false);
             if (library == null)
             {
                 _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
                 return NotFound();
             }
-            var readerEntity = _repository.Reader.GetReader(libraryId, id, trackChanges: true);
+            var readerEntity = await _repository.Reader.GetReaderAsync(libraryId, id, trackChanges: true);
             if (readerEntity == null)
             {
                 _logger.LogInfo($"Reader with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _mapper.Map(reader, readerEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
     }

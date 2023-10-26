@@ -9,8 +9,8 @@ namespace Contracts
 {
     public interface IReaderRepository
     {
-        IEnumerable<Reader> GetReaders(Guid libraryId, bool trackChanges);
-        Reader GetReader(Guid libraryId, Guid id, bool trackChanges);
+        Task<IEnumerable<Reader>> GetReadersAsync(Guid libraryId, bool trackChanges);
+        Task<Reader> GetReaderAsync(Guid libraryId, Guid id, bool trackChanges);
         void CreateReaderForLibrary(Guid libraryId, Reader reader);
         void DeleteReader(Reader reader);
     }

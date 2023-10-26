@@ -12,6 +12,6 @@ namespace Contracts
         IEmployeeRepository Employee { get; }
         ILibraryRepository Library { get; }
         IReaderRepository Reader { get; }
-        void Save();
+        Task SaveAsync();
     }
 }
