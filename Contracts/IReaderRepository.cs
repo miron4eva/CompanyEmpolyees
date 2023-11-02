@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Entities.RequestFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Contracts
 {
     public interface IReaderRepository
     {
-        Task<IEnumerable<Reader>> GetReadersAsync(Guid libraryId, bool trackChanges);
+        Task<PagedList<Reader>> GetReadersAsync(Guid libraryId, ReaderParameters readerParameters, bool trackChanges);
         Task<Reader> GetReaderAsync(Guid libraryId, Guid id, bool trackChanges);
         void CreateReaderForLibrary(Guid libraryId, Reader reader);
         void DeleteReader(Reader reader);
