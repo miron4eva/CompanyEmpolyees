@@ -4,6 +4,8 @@ using CompanyEmpolyees.Extensions;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
 using CompanyEmpolyees.ActionFilters;
+using Entities.DataTransferObjects;
+using Repository;
 
 namespace CompanyEmployees;
 
@@ -46,6 +48,8 @@ public class Startup
         services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
         services.AddScoped<ValidateLibraryExistsAttribute>();
         services.AddScoped<ValidateReaderForLibraryExistAttribute>();
+        services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
+        services.AddScoped<IDataShaper<ReaderDto>, DataShaper<ReaderDto>>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

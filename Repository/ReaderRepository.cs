@@ -3,6 +3,7 @@ using Entities;
 using Entities.Models;
 using Entities.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,8 @@ namespace Repository
         public async Task<PagedList<Reader>> GetReadersAsync(Guid libraryId, ReaderParameters readerParameters, bool trackChanges)
         {
             var readers = await FindByCondition(e => e.LibraryId.Equals(libraryId), trackChanges)
-                .OrderBy(e => e.Name)
+                .Search(readerParameters.SearchTerm)
+                .Sort(readerParameters.OrderBy)
                 .ToListAsync();
             return PagedList<Reader>.ToPagedList(readers, readerParameters.PageNumber, readerParameters.PageSize);
         }

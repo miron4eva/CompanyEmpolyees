@@ -8,5 +8,10 @@ namespace Entities.RequestFeatures
 {
     public class ReaderParameters : RequestParameters
     {
+        public ReaderParameters()
+        {
+            OrderBy = "name";
+        }
+        public string SearchTerm { get; set; }
     }
 }

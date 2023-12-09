@@ -16,12 +16,14 @@ namespace CompanyEmpolyees.Controllers
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
+        private readonly IDataShaper<ReaderDto> _dataShaper;
 
-        public ReadersController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
+        public ReadersController(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IDataShaper<ReaderDto> dataShaper)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _dataShaper = dataShaper;
         }
         [HttpGet]
         public async Task<IActionResult> GetReadersForLibrary(Guid libraryId, [FromQuery] ReaderParameters readerParameters)
@@ -32,9 +34,9 @@ namespace CompanyEmpolyees.Controllers
                 _logger.LogInfo($"Library with id: {libraryId} doesn't exist in the database.");
                 return NotFound();
             }
-            var readersFromDb = await _repository.Reader.GetReadersAsync(libraryId,readerParameters, trackChanges: false);
+            var readersFromDb = await _repository.Reader.GetReadersAsync(libraryId, readerParameters, trackChanges: false);
             var readersDto = _mapper.Map<IEnumerable<ReaderDto>>(readersFromDb);
-            return Ok(readersDto);
+            return Ok(_dataShaper.ShapeData(readersDto, readerParameters.Fields));
         }
         [HttpGet("{id}", Name = "GetReaderForLibrary")]
         public async Task<IActionResult> GetReaderForLibrary(Guid libraryId, Guid id)
