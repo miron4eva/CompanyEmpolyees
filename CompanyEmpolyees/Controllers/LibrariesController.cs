@@ -13,6 +13,7 @@ namespace CompanyEmployees.Controllers
 {
     [Route("api/libraries")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1")]
     public class LibrariesController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
@@ -24,8 +25,11 @@ namespace CompanyEmployees.Controllers
             _logger = logger;
             _mapper = mapper;
         }
+        /// <summary>
+        /// Получает список всех библиотек
+        /// </summary>
+        /// <returns> Список библиотек</returns>.
         [HttpGet(Name = "GetLibraries"), Authorize(Roles = "Manager")]
-
         public async Task<IActionResult> GetLibrariesAsync()
         {
             var libraries = await _repository.Library.GetAllLibrariesAsync(trackChanges: false);
@@ -47,6 +51,14 @@ namespace CompanyEmployees.Controllers
                 return Ok(libraryDto);
             }
         }
+        /// <summary>
+        /// Создает библиотеку
+        /// </summary>
+        /// <param name="library"></param>.
+        /// <returns> Cозданная библиотека</returns>.
+        /// <response code="201"> Возвращает только что созданный элемент</response>.
+        /// <response code="400"> Если элемент равен null</response>.
+        /// <response code="422"> Если модель недействительна</response>.
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateLibrary([FromBody] LibraryForCreationDto library)

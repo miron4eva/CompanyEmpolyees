@@ -55,6 +55,7 @@ public class Startup
         services.AddAuthentication();
         services.ConfigureIdentity();
         services.ConfigureJWT(Configuration);
+        services.ConfigureSwagger();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,7 +79,13 @@ public class Startup
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseSwagger();
+        app.UseSwaggerUI(s =>
+        {
+            s.SwaggerEndpoint("/swagger/v1/swagger.json", "Code Maze API v1");
+            s.SwaggerEndpoint("/swagger/v2/swagger.json", "Code Maze API v2");
 
+        });
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();

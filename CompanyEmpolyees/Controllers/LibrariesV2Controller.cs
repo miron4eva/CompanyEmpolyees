@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyEmpolyees.Controllers
 {
-    [ApiVersion("2.0")]
-    [Route("api/libraries2")]
+    [Route("api/libraries")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v2")]
     public class LibrariesV2Controller : ControllerBase
     {
         private readonly IRepositoryManager _repository;
