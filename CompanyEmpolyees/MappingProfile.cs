@@ -22,6 +22,7 @@ namespace CompanyEmpolyees
             CreateMap<ReaderForUpdateDto, Reader>().ReverseMap();
             CreateMap<CompanyForUpdateDto, Company>();
             CreateMap<LibraryForUpdateDto, Library>();
+            CreateMap<UserForRegistrationDto, User>();
         }
     }
 }

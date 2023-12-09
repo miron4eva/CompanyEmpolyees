@@ -50,7 +50,11 @@ public class Startup
         services.AddScoped<ValidateReaderForLibraryExistAttribute>();
         services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
         services.AddScoped<IDataShaper<ReaderDto>, DataShaper<ReaderDto>>();
+        services.AddScoped<IAuthenticationManager, AuthenticationManager>();
         services.ConfigureVersioning();
+        services.AddAuthentication();
+        services.ConfigureIdentity();
+        services.ConfigureJWT(Configuration);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,7 +76,7 @@ public class Startup
         });
 
         app.UseRouting();
-
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>
