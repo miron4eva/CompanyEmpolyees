@@ -26,6 +26,7 @@ namespace CompanyEmpolyees.Controllers
             _dataShaper = dataShaper;
         }
         [HttpGet]
+        [HttpHead]
         public async Task<IActionResult> GetReadersForLibrary(Guid libraryId, [FromQuery] ReaderParameters readerParameters)
         {
             var library = await _repository.Library.GetLibraryAsync(libraryId, trackChanges: false);

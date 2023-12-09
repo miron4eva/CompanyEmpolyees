@@ -50,6 +50,7 @@ public class Startup
         services.AddScoped<ValidateReaderForLibraryExistAttribute>();
         services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
         services.AddScoped<IDataShaper<ReaderDto>, DataShaper<ReaderDto>>();
+        services.ConfigureVersioning();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
